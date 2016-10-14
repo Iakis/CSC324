@@ -88,8 +88,6 @@ and your TAs will appreciate it!
    ("Bye" 5)
    ("Hi" 10)))
 
-#|
-
 ; Select all from two product of two tables
 (test (SELECT * FROM [Person "P"] [Teaching "T"])
       '(("P.Name" "Age" "LikesChocolate" "T.Name" "Course")
@@ -382,5 +380,3 @@ and your TAs will appreciate it!
    (1 "Dog" "Cat")
    (10 "Hi" "Bye")
    (10 "Dog" "Cat")))
-
-|#

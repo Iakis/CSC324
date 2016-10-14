@@ -36,8 +36,7 @@
 ; to the provide statement.
 (provide attributes
          tuples
-         size
-         SELECT)
+         size)
 
 ; Part 0: Semantic aliases
 
@@ -47,7 +46,7 @@
 
   Returns a list of the attributes in 'table', in the order they appear.
 |#
-(define attributes first)
+(define attributes car)
 
 #|
 (tuples table)
@@ -56,7 +55,7 @@
   Returns a list of all tuples in 'table', in the order they appear.
   Note: it is possible for 'table' to contain no tuples.
 |#
-(define tuples rest)
+(define tuples cdr)
 
 #|
 (size table)
@@ -102,24 +101,6 @@ A function 'replace-attr' that takes:
     - Otherwise, just ignore the tuple and return 'x'.
 |#
 
-(define index (lambda(lst item [count 0])
-  (if (empty? lst)
-      -1
-      (if (equal? item (first lst))
-          count
-          (index  (rest lst) item (+ count 1))))))
-
-(define (get_attrs lst attrs tuples)
-  (map (lambda (x)
-         (list-ref tuples (index lst x )))
-       attrs))
-
-
-(define (get_all_attrs attr table)
-  (cons attr
-        (map (lambda (x)
-               (get_attrs (attributes table) attr x))
-             (tuples table))))
 
 #|------------------------------------------------------------------------------------------------------------- |#
 #|------------------------------------------------------------------------------------------------------------- |#
@@ -138,13 +119,3 @@ A function 'replace-attr' that takes:
     [(replace atom table)
      ; Change this!
      (void)]))
-
-(define-syntax SELECT
-  (syntax-rules (* FROM)
-    ;Select all from table
-    [(SELECT * FROM <table>)
-     <table>]
-    ;Select attribute from single table
-    [(SELECT <attr> FROM <table>)
-     (get_all_attrs <attr> <table>)]
-))
