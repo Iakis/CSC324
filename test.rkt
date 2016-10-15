@@ -88,7 +88,7 @@ and your TAs will appreciate it!
    ("Bye" 5)
    ("Hi" 10)))
 
-#|
+
 
 ; Select all from two product of two tables
 (test (SELECT * FROM [Person "P"] [Teaching "T"])
@@ -150,6 +150,7 @@ and your TAs will appreciate it!
    (3 "Hi" 10 #t "Paul" 100 #f)))
 
 
+#|
 ; ---- WHERE ----
 ; Attribute as condition, select all
 (test (SELECT *

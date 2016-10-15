@@ -154,14 +154,14 @@ A function 'replace-attr' that takes:
      1))
 
 
+
+
 (define (join tables)
   (if (empty? (rest tables))
       (first tables)
       (cartesian-product (first tables)
                          (join (rest tables)))))
 
-
-#|------------------------------------------------------------------------------------------------------------- |#
 
 
 (define (make-lattr-partial lattr lattrs name)
@@ -172,17 +172,17 @@ A function 'replace-attr' that takes:
         attr))
   (map append-name lattr))
 
-(define (make-lattr attributes prefix)
-  (define (make-lattr-help attributes attributes2 prefix)
-    (if (empty? attributes)
+(define (make-lattr lattrs lnames)
+  (define (make-lattr-help lattrs lattrs-bk lnames)
+    (if (empty? lattrs)
         '()
-        (cons (make-lattr-partial (car attributes)
-                                  attributes2
-                                  (car prefix))
-              (make-lattr-help (cdr attributes)
-                               attributes2
-                               (cdr prefix)))))
-  (apply append (make-lattr-help attributes attributes prefix)))
+        (cons (make-lattr-partial (car lattrs)
+                                  lattrs-bk
+                                  (car lnames))
+              (make-lattr-help (cdr lattrs)
+                               lattrs-bk
+                               (cdr lnames)))))
+  (apply append (make-lattr-help lattrs lattrs lnames)))
 
 (define (cross table_list)
   (let* ([tables (map car table_list)]
@@ -208,7 +208,7 @@ A function 'replace-attr' that takes:
     ))
 
 
-
+#|------------------------------------------------------------------------------------------------------------- |#
 #|------------------------------------------------------------------------------------------------------------- |#
 #|------------------------------------------------------------------------------------------------------------- |#
 
