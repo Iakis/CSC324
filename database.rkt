@@ -8,12 +8,13 @@
 
 ; Function versions for common syntactic forms.
 ; *Use these in your queries instead of the syntactic forms!!!*
-;(define (And x y) (and x y)) 
-;(define (Or x y) (or x y))
-;(define (If x y z) (if x y z))
+(define (And x y) (and x y)) 
+(define (Or x y) (or x y))
+(define (If x y z) (if x y z))
 ;
 ; Correction Oct 5 2016
 
+#|
 (define-syntax If
   (syntax-rules ()
   ((If a b c)
@@ -28,6 +29,7 @@
   (syntax-rules ()
   ((And a b c)
   (and a b c))))
+|#
 ; Please do define And, Or as syntactic forms
 ; We have actually done this in class you may use the class code and this week's lab code for this.
   
@@ -121,13 +123,13 @@ A function 'replace-attr' that takes:
 (define (replace-all-attr condition attrs)
   (if (empty? condition)
       empty
-      (append (replace-attr (first condition) attrs)
+      (append (if (not (list? (first condition))) (replace-attr (first condition) attrs) (list (replace-all-attr (first condition) attrs)))
                (replace-all-attr (rest condition) attrs))))
 
 (define (map-tuple replace-alls tuple)
   (if (empty? replace-alls)
       empty
-      (append ((first replace-alls) tuple)
+      (append (if (not (list? (first replace-alls))) ((first replace-alls) tuple) (list (map-tuple (first replace-alls) tuple)))
               (map-tuple (rest replace-alls) tuple))))
 
 (define-namespace-anchor a)			; create a namespace anchor
