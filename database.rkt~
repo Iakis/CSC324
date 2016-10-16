@@ -81,8 +81,7 @@ A function that takes:
 
   and returns the value of the tuple corresponding to that attribute.
 |#
-(define (filter_tuple attrs attr tuple)
-  (list-ref tuple (get_index attrs attr)))
+
 
 
 
@@ -109,18 +108,6 @@ A function 'replace-attr' that takes:
       in the tuple.
     - Otherwise, just ignore the tuple and return 'x'.
 |#
-
-(define (replace-attr x attrs)
-  (lambda (tuple)
-    (if (member x attrs)
-        (filter_tuple attrs x tuple)
-        x)))
-
-
-(define (filter_where condition table)
-  (filter_table
-   (lambda (tuple) (map (map replace-attr condition ((length condition))) tuple))
-   table))
 
 
 
@@ -172,11 +159,6 @@ A function 'replace-attr' that takes:
       (first tables)
       (cartesian-product (first tables)
                          (join (rest tables)))))
-
-
-
-;WHERE
-
 
 
 #|------------------------------------------------------------------------------------------------------------- |#
