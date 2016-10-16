@@ -150,7 +150,7 @@ and your TAs will appreciate it!
    (3 "Hi" 10 #t "Paul" 100 #f)))
 
 
-#|
+
 ; ---- WHERE ----
 ; Attribute as condition, select all
 (test (SELECT *
@@ -160,6 +160,7 @@ and your TAs will appreciate it!
         ("David" 20 #t)
         ("Jen" 30 #t)))
 
+
 ; Attribute as condition, select subset
 (test (SELECT '("LikesChocolate" "Name")
         FROM Person
@@ -167,6 +168,7 @@ and your TAs will appreciate it!
       '(("LikesChocolate" "Name")
         (#t "David")
         (#t "Jen")))
+
 
 ; Condition as function of one attribute, select all
 (test (SELECT *
@@ -228,7 +230,7 @@ and your TAs will appreciate it!
         ("Paul" #f 30 "CSC108")
         ("David" #t 30 "CSC343")))
 
-
+#|
 ; ---- ORDER BY ----
 ; Order by attribute
 (test (SELECT *

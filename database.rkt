@@ -82,7 +82,7 @@ A function that takes:
   and returns the value of the tuple corresponding to that attribute.
 |#
 (define (filter_tuple attrs attr tuple)
-  (list-ref tuple (get_index attrs attr)))
+  (list (list-ref tuple (get_index attrs attr))))
 
 
 
@@ -110,16 +110,40 @@ A function 'replace-attr' that takes:
     - Otherwise, just ignore the tuple and return 'x'.
 |#
 
+
+
 (define (replace-attr x attrs)
-  (lambda (tuple)
+  (list (lambda (tuple)
     (if (member x attrs)
         (filter_tuple attrs x tuple)
-        x)))
+        (list x)))))
 
+(define (replace-all-attr condition attrs)
+  (if (empty? condition)
+      empty
+      (append (replace-attr (first condition) attrs)
+               (replace-all-attr (rest condition) attrs))))
+
+(define (map-tuple replace-alls tuple)
+  (if (empty? replace-alls)
+      empty
+      (append ((first replace-alls) tuple)
+              (map-tuple (rest replace-alls) tuple))))
+
+(define-namespace-anchor a)			; create a namespace anchor
+(define ns (namespace-anchor->namespace a))	; create a namespace, ns
 
 (define (filter_where condition table)
   (filter_table
-   (lambda (tuple) (map (map replace-attr condition ((length condition))) tuple))
+   (lambda (tuple)
+     (let ([x (map-tuple
+            (replace-all-attr (cond
+                                [(not (pair? condition)) (list condition)]
+                                [else condition])
+                              (attributes table)) tuple)])
+       (if (equal? (length x) 1)
+           (eval (first x) ns)
+           (eval x ns))))
    table))
 
 
@@ -243,7 +267,21 @@ A function 'replace-attr' that takes:
     ))
 
 (define-syntax SELECT
-  (syntax-rules (* FROM)
+  (syntax-rules (* FROM WHERE)
+    ;Select all from table where
+    [(SELECT * FROM <table> WHERE <condition>)
+     (filter_where (quote <condition>) <table>)]
+    ;Select attribute from single table where
+    [(SELECT <attr> FROM <table> WHERE <condition>)
+    (get_tuples <attr> (filter_where (quote <condition>) <table>))]
+    ; FROM -> SELECT: multiple table, all attrs where
+    [(SELECT * FROM <entry1> <entry2> ... WHERE <condition>)
+     (filter_where (quote <condition>) (cross (Product <entry1> <entry2> ...)))]
+    ; FROM -> SELECT: multiple table, attrs where
+    [(SELECT <attrs> FROM <entry1> <entry2> ... WHERE <condition>)
+     (SELECT <attrs> FROM 
+             (filter_where (quote <condition>) (cross (Product <entry1> <entry2> ...))))]
+    
     ;Select all from table
     [(SELECT * FROM <table>)
      <table>]
