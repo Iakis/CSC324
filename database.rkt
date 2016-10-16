@@ -163,49 +163,36 @@ A function 'replace-attr' that takes:
 
 #|------------------------------------------------------------------------------------------------------------- |#
 
-
-(define (make-lattr-partial lattr lattrs name)
-  (define (append-name attr)
+(define (helper attr lst name)
     (if (and (not (eq? attr -1))
-             (duplicate attr lattrs))
+             (duplicate attr lst))
         (string-append name "." attr)
         attr))
-  (map append-name lattr))
 
-(define (make-lattr attributes prefix)
-  (define (make-lattr-help attributes attributes2 prefix)
+(define (helper2 attributes attributes2 name)
     (if (empty? attributes)
         '()
-        (cons (make-lattr-partial (car attributes)
-                                  attributes2
-                                  (car prefix))
-              (make-lattr-help (cdr attributes)
-                               attributes2
-                               (cdr prefix)))))
-  (apply append (make-lattr-help attributes attributes prefix)))
+        (cons (prefix (first attributes) attributes2(first name))
+              (helper2 (rest attributes) attributes2(rest name)))))
+
+(define (prefix lst all name)
+  (map (lambda (x)
+         (helper x all name))
+       lst))
+
+(define (prefix_all attributes name)
+  (apply append (helper2 attributes attributes name)))
 
 (define (cross table_list)
-  (let* ([tables (map car table_list)]
-         [records (join (map tuples tables))]
-         [lattr (make-lattr (map attributes tables)
-                            (map cdr table_list))])
-    (cons lattr records)))
+  (let ([tables (map car table_list)])
+  (cons  (prefix_all (map attributes tables)(map cdr table_list)) (join (map tuples tables)))))
 
 
 
 
 
 
-(define-syntax Product
-  (syntax-rules ()
-    [(Product [<table1> <name1>])
-     (list (cons <table1> <name1>))]
-    [(Product <table>)
-     (list (cons <table> -1))]
-    [(Product <entry> ...)
-     (append (Product <entry>)
-             ...)]
-    ))
+
 
 
 
@@ -225,6 +212,17 @@ A function 'replace-attr' that takes:
     [(replace atom table)
      ; Change this!
      (void)]))
+
+(define-syntax Product
+  (syntax-rules ()
+    [(Product [<table1> <name1>])
+     (list (cons <table1> <name1>))]
+    [(Product <table>)
+     (list (cons <table> -1))]
+    [(Product <entry> ...)
+     (append (Product <entry>)
+             ...)]
+    ))
 
 (define-syntax SELECT
   (syntax-rules (* FROM)
