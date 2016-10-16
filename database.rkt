@@ -113,7 +113,7 @@ A function 'replace-attr' that takes:
 |#
 
 
-
+;WHERE
 (define (replace-attr x attrs)
   (list (lambda (tuple)
     (if (member x attrs)
@@ -123,13 +123,17 @@ A function 'replace-attr' that takes:
 (define (replace-all-attr condition attrs)
   (if (empty? condition)
       empty
-      (append (if (not (list? (first condition))) (replace-attr (first condition) attrs) (list (replace-all-attr (first condition) attrs)))
+      (append (if (not (list? (first condition)))
+                  (replace-attr (first condition) attrs)
+                  (list (replace-all-attr (first condition) attrs)))
                (replace-all-attr (rest condition) attrs))))
 
 (define (map-tuple replace-alls tuple)
   (if (empty? replace-alls)
       empty
-      (append (if (not (list? (first replace-alls))) ((first replace-alls) tuple) (list (map-tuple (first replace-alls) tuple)))
+      (append (if (not (list? (first replace-alls)))
+                  ((first replace-alls) tuple)
+                  (list (map-tuple (first replace-alls) tuple)))
               (map-tuple (rest replace-alls) tuple))))
 
 (define-namespace-anchor a)			; create a namespace anchor
@@ -147,6 +151,16 @@ A function 'replace-attr' that takes:
            (eval (first x) ns)
            (eval x ns))))
    table))
+
+
+;ORDER BY
+(define (order-by condition table)
+  (cons (attributes table)
+  (cond
+    [(not (pair? condition))
+     (sort (tuples table) > #:key (lambda (item) (list-ref item (get_index (attributes table) condition))))]
+    [else (sort (tuples table) > #:key (lambda (item) (eval (map-tuple (replace-all-attr condition (attributes table)) item)ns)))]
+    )))
 
 
 
@@ -199,9 +213,6 @@ A function 'replace-attr' that takes:
       (cartesian-product (first tables)
                          (join (rest tables)))))
 
-
-
-;WHERE
 
 
 
@@ -269,7 +280,30 @@ A function 'replace-attr' that takes:
     ))
 
 (define-syntax SELECT
-  (syntax-rules (* FROM WHERE)
+  (syntax-rules (* FROM WHERE ORDER BY)
+
+    ;Select all from table where order by
+    [(SELECT * FROM <table> WHERE <condition> ORDER BY <condi>)
+     (order-by (quote <condi>) (filter_where (quote <condition>) <table>))]
+    ;Select attribute from table where order by
+    [(SELECT <attrs> FROM <entry1> <entry2> ... WHERE <condition> ORDER BY <condi>)
+     (SELECT <attrs> FROM 
+             (order-by (quote <condi>) (filter_where (quote <condition>) (cross (Product <entry1> <entry2> ...)))))]
+
+    ;Select all from table order by
+    [(SELECT * FROM <table> ORDER BY <condi>)
+     (order-by (quote <condi>) <table>)]
+    ;Select attribute from single table where
+    [(SELECT <attr> FROM <table> ORDER BY <condi>)
+     (get_tuples <attr> (order-by (quote <condi>) <table>))]
+    ;Select all from multiple table order by
+    [(SELECT * FROM <entry1> <entry2> ... ORDER BY <condi>)
+     (order-by (quote <condi>) (cross (Product <entry1> <entry2> ...)))]
+    ;Select attribute from multiple table order by
+    [(SELECT <attrs> FROM <entry1> <entry2> ... ORDER BY <condi>)
+     (SELECT <attrs> FROM 
+             (order-by (quote <condi>)(cross (Product <entry1> <entry2> ...))))]
+    
     ;Select all from table where
     [(SELECT * FROM <table> WHERE <condition>)
      (filter_where (quote <condition>) <table>)]
@@ -283,7 +317,7 @@ A function 'replace-attr' that takes:
     [(SELECT <attrs> FROM <entry1> <entry2> ... WHERE <condition>)
      (SELECT <attrs> FROM 
              (filter_where (quote <condition>) (cross (Product <entry1> <entry2> ...))))]
-    
+
     ;Select all from table
     [(SELECT * FROM <table>)
      <table>]

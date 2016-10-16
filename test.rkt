@@ -230,7 +230,7 @@ and your TAs will appreciate it!
         ("Paul" #f 30 "CSC108")
         ("David" #t 30 "CSC343")))
 
-#|
+
 ; ---- ORDER BY ----
 ; Order by attribute
 (test (SELECT *
@@ -259,6 +259,7 @@ and your TAs will appreciate it!
         ("Paul" 100 #f)
         ("Jen" 30 #t)))
 
+
 ; Order with duplicate
 (test (SELECT *
         FROM Teaching
@@ -267,6 +268,7 @@ and your TAs will appreciate it!
         ("David" "CSC324")
         ("David" "CSC343")
         ("Paul" "CSC108")))
+
 
 ; Order on a literal table
 (test (SELECT *
@@ -281,6 +283,7 @@ and your TAs will appreciate it!
         (4 4 4)
         (1 2 3)
         (2 3 -1)))
+
 
 ; Order on two tables
 (test (SELECT *
@@ -385,5 +388,3 @@ and your TAs will appreciate it!
    (1 "Dog" "Cat")
    (10 "Hi" "Bye")
    (10 "Dog" "Cat")))
-
-|#
