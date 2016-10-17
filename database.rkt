@@ -1,7 +1,7 @@
 #| Assignment 1 - Racket Query Language  (due Oct 14, 11:50pm)
 ***Write the names, CDF accounts and student IDs for each of your group members below.***
 Sikai Li, lijusti5, 1000665149
-<Name>, <CDF>, <ID>
+Tony Wang, wangto22, 1001333354
 |#
 #lang racket
 
@@ -49,6 +49,7 @@ Sikai Li, lijusti5, 1000665149
 
 ; Part I "WHERE" helpers; you may or may not wish to implement these.
 
+;WHWERE helpers
 #|
 A function that takes: 
   - a list of attributes
@@ -73,12 +74,26 @@ A function that takes:
   (cons (attributes table)
         (filter f (tuples table))))
 
-;WHERE
+#|
+A function 'replace-attr' that takes:
+  - x 
+  - a list of attributes
+
+  and returns a function 'f' which takes a tuple and does the following:
+    - If 'x' is in the list of attributes, return the corrresponding value 
+      in the tuple.
+    - Otherwise, just ignore the tuple and return 'x'.
+|#
+
 (define (replace-attr x attrs)
   (list (lambda (tuple)
     (if (member x attrs)
         (filter_tuple attrs x tuple)
         (list x)))))
+
+#|
+Replace-all-attr uses replace-attr on all of the atoms inside a "condition" given by the user
+|#
 
 (define (replace-all-attr condition attrs)
   (if (empty? condition)
@@ -88,6 +103,9 @@ A function that takes:
                   (list (replace-all-attr (first condition) attrs)))
                (replace-all-attr (rest condition) attrs))))
 
+#|
+Map-tuple does replace-all-attr for all passed in tuples
+|#
 (define (map-tuple replace-alls tuple)
   (if (empty? replace-alls)
       empty
@@ -99,6 +117,8 @@ A function that takes:
 (define-namespace-anchor a)			; create a namespace anchor
 (define ns (namespace-anchor->namespace a))	; create a namespace, ns
 
+;Main WHERE
+;Main function for filtering WHERE, maps all of the tuples to conditions and evaluate to decide filtering
 (define (filter_where condition table)
   (filter_table
    (lambda (tuple)
@@ -112,8 +132,12 @@ A function that takes:
            (eval x ns))))
    table))
 
+#|------------------------------------------------------------------------------------------------------------- |#
+
 
 ;ORDER BY
+
+;Uses the sort function decide order, also uses replace-all-attr helper from WHERE to evaluate conditions
 (define (order-by condition table)
   (cons (attributes table)
   (cond
