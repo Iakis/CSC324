@@ -136,6 +136,13 @@ and your TAs will appreciate it!
         ("Paul" 100 #f "Paul" "CSC108")
         ("Paul" 100 #f "David" "CSC343")))
 
+; Select all from two product of two tables one empty
+(test (SELECT * FROM [Person "P"] [Empty_table "E"])
+      '(("Name" "Age" "LikesChocolate")
+        ("David" 20 #t) 
+        ("Jen" 30 #t) 
+        ("Paul" 100 #f)))
+        
 ; Select all from product of two tables and the empty table
 (test (SELECT * FROM [Person "P"] [Teaching "T"] [Empty_table "E"])
       '(("P.Name" "Age" "LikesChocolate" "T.Name" "Course")
@@ -281,6 +288,12 @@ and your TAs will appreciate it!
         WHERE #t)
       Person)
 
+; Constant false condition
+(test (SELECT *
+        FROM Person
+        WHERE #f)
+      '(("Name" "Age" "LikesChocolate")))
+
 ; Constant false compound condition
 (test (SELECT *
         FROM Person
@@ -399,6 +412,20 @@ and your TAs will appreciate it!
         ("David" 20 #t "Paul" "CSC108")
         ("David" 20 #t "David" "CSC343")))
 
+; Order on two tables with empty
+(test (SELECT *
+         FROM [Person "P"] [Teaching "T"] [Empty_table "E"]
+         ORDER BY "Age")
+       '(("P.Name" "Age" "LikesChocolate" "T.Name" "Course")
+        ("Paul" 100 #f "David" "CSC324")
+        ("Paul" 100 #f "Paul" "CSC108")
+        ("Paul" 100 #f "David" "CSC343")
+        ("Jen" 30 #t "David" "CSC324")
+        ("Jen" 30 #t "Paul" "CSC108")
+        ("Jen" 30 #t "David" "CSC343")
+        ("David" 20 #t "David" "CSC324")
+        ("David" 20 #t "Paul" "CSC108")
+        ("David" 20 #t "David" "CSC343")))
 
 ; ---- ORDER BY and WHERE ----
 ; Use attributes, select all 
@@ -449,6 +476,14 @@ and your TAs will appreciate it!
  (SELECT * 
    FROM (SELECT '("Age" "Name") FROM Person))
  '(("Age" "Name")
+   (20 "David")
+   (30 "Jen")
+   (100 "Paul")))
+
+(test
+ (SELECT '("Age" "Name")
+   FROM (SELECT * FROM Person))
+  '(("Age" "Name")
    (20 "David")
    (30 "Jen")
    (100 "Paul")))
