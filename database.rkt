@@ -8,26 +8,13 @@
 
 ; Function versions for common syntactic forms.
 ; *Use these in your queries instead of the syntactic forms!!!*
-;(define (And x y) (and x y)) 
-;(define (Or x y) (or x y))
-;(define (If x y z) (if x y z))
+(define (And x y) (and x y)) 
+(define (Or x y) (or x y))
+(define (If x y z) (if x y z))
 ;
 ; Correction Oct 5 2016
 
-(define-syntax If
-  (syntax-rules ()
-  ((If a b c)
-  (if a b c))))
 
-(define-syntax Or
-  (syntax-rules ()
-  ((Or a b c)
-  (or a b c))))
-
-(define-syntax And
-  (syntax-rules ()
-  ((And a b c)
-  (and a b c))))
 ; Please do define And, Or as syntactic forms
 ; We have actually done this in class you may use the class code and this week's lab code for this.
   
@@ -238,6 +225,8 @@ A function 'replace-attr' that takes:
 
 
 
+
+
 #|------------------------------------------------------------------------------------------------------------- |#
 #|------------------------------------------------------------------------------------------------------------- |#
 
@@ -294,5 +283,5 @@ A function 'replace-attr' that takes:
     ; FROM -> SELECT: multiple table, attrs
     [(SELECT <attrs> FROM <entry1> <entry2> ...)
      (SELECT <attrs> FROM 
-             (cross (Product <entry1> <entry2> ...)))]
+             (cross(Product <entry1> <entry2> ...)))]
 ))
