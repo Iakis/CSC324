@@ -1,6 +1,6 @@
 #| Assignment 1 - Racket Query Language  (due Oct 14, 11:50pm)
 ***Write the names, CDF accounts and student IDs for each of your group members below.***
-<Name>, <CDF>, <ID>
+Sikai Li, lijusti5, 1000665149
 <Name>, <CDF>, <ID>
 |#
 #lang racket
@@ -10,26 +10,6 @@
 (define (And x y) (and x y)) 
 (define (Or x y) (or x y))
 (define (If x y z) (if x y z))
-;
-; Correction Oct 5 2016
-
-#|
-(define-syntax If
-  (syntax-rules ()
-  ((If a b c)
-  (if a b c))))
-(define-syntax Or
-  (syntax-rules ()
-  ((Or a b c)
-  (or a b c))))
-(define-syntax And
-  (syntax-rules ()
-  ((And a b c)
-  (and a b c))))
-|#
-; Please do define And, Or as syntactic forms
-; We have actually done this in class you may use the class code and this week's lab code for this.
-  
 
 ; TODO: After you have defined your macro(s), make sure you add each one
 ; to the provide statement.
@@ -93,17 +73,6 @@ A function that takes:
   (cons (attributes table)
         (filter f (tuples table))))
 
-#|
-A function 'replace-attr' that takes:
-  - x 
-  - a list of attributes
-  and returns a function 'f' which takes a tuple and does the following:
-    - If 'x' is in the list of attributes, return the corrresponding value 
-      in the tuple.
-    - Otherwise, just ignore the tuple and return 'x'.
-|#
-
-
 ;WHERE
 (define (replace-attr x attrs)
   (list (lambda (tuple)
@@ -153,9 +122,11 @@ A function 'replace-attr' that takes:
     [else (sort (tuples table) > #:key (lambda (item) (eval (map-tuple (replace-all-attr condition (attributes table)) item)ns)))]
     )))
 
+#|------------------------------------------------------------------------------------------------------------- |#
 
+;SELECT helpers
 
-
+;Gets the index of an element in a list
 (define get_index (lambda(lst item [count 0])
   (if (empty? lst)
       -1
@@ -163,20 +134,28 @@ A function 'replace-attr' that takes:
           count
           (get_index  (rest lst) item (+ count 1))))))
 
+;Gets the corresponding tuple relative to the attribte
 (define (get_attr lst attr tuple)
   (list-ref tuple (get_index attr lst)))
 
+;Gets the tuples for all attributes
 (define (get_attrs index attr tuples)
   (map (lambda (x)
          (get_attr x index tuples))
        attr))
 
+;Creates table for all attributes and tuples
 (define (get_tuples attr table)
   (cons attr
         (map (lambda (x)
                (get_attrs (attributes table) attr x))
              (tuples table))))
 
+#|------------------------------------------------------------------------------------------------------------- |#
+
+;Multi-table product
+
+;Helper for cartisean product
 (define (help item lst)
   (map (lambda (temp)
          (cond
@@ -185,86 +164,66 @@ A function 'replace-attr' that takes:
            [else (append item temp)]))
        lst))
 
+;Returns the cartesian-product
 (define (cartesian-product lst1 lst2)
   (foldl (lambda (a result)
            (append result (help a lst2)))
          '()
          lst1))
 
-
+;Checks for duplicates
 (define (duplicate attr lst)
   (> (length (filter (lambda (x) (equal? attr x))
                      (apply append lst)))
      1))
 
-
+;Joins tables using the cartesian product
 (define (join tables)
   (if (empty? (rest tables))
       (first tables)
       (cartesian-product (first tables)
                          (join (rest tables)))))
 
-
-
-
-#|------------------------------------------------------------------------------------------------------------- |#
-
+;Helper to add prefix if there  is a duplicate
 (define (helper attr lst name)
     (if (and (not (eq? attr -1))
              (duplicate attr lst))
         (string-append name "." attr)
         attr))
 
+;Helper for creating the final table
 (define (helper2 attributes attributes2 name)
     (if (empty? attributes)
         '()
         (cons (prefix (first attributes) attributes2(first name))
               (helper2 (rest attributes) attributes2(rest name)))))
 
+;Add prefix to all in lst
 (define (prefix lst all name)
   (map (lambda (x)
          (helper x all name))
        lst))
 
+;Add prefixs to all attributes
 (define (prefix_all attributes name)
   (apply append (helper2 attributes attributes name)))
 
+;Create the full cross product table
 (define (cross table_list)
   (let ([tables (map car table_list)])
   (cons  (prefix_all (map attributes tables)(map cdr table_list)) (join (map tuples tables)))))
 
-
-
-
-
-
-
-
-
-
 #|------------------------------------------------------------------------------------------------------------- |#
-#|------------------------------------------------------------------------------------------------------------- |#
-
-; Starter for Part 3; feel free to ignore!
-
-; What should this macro do?
-(define-syntax replace
-  (syntax-rules ()
-    ; The recursive step, when given a compound expression
-    [(replace (expr ...) table)
-     ; Change this!
-     (void)]
-    ; The base case, when given just an atom. This is easier!
-    [(replace atom table)
-     ; Change this!
-     (void)]))
 
 (define-syntax Product
   (syntax-rules ()
+    ;Product of table and naming prefix
     [(Product [<table1> <name1>])
      (list (cons <table1> <name1>))]
+    ;Product of table and no naming prefix
     [(Product <table>)
      (list (cons <table> -1))]
+    ;Product of multiple tables
     [(Product <entry> ...)
      (append (Product <entry>)
              ...)]
